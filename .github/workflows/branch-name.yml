@@ -12,11 +12,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Validate source branch naming convention
-        uses: lekterable/branchlint-action@2.0.0
-        with:
-          allowed: |
-            feature\/[0-9]+-[a-z0-9-]+
-            fix\/[0-9]+-[a-z0-9-]+
-            refactor\/[a-z0-9-]+
-            docs\/[a-z0-9-]+
-            bench\/[a-z0-9-]+
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          if [[ "$ACTOR" == "dependabot[bot]" ]]; then
+            echo "Dependabot branch detected, skipping naming enforcement."
+            exit 0
+          fi
+
+          if [[ "$BRANCH_NAME" =~ ^feature/[0-9]+-[a-z0-9-]+$ ]] || \
+             [[ "$BRANCH_NAME" =~ ^fix/[0-9]+-[a-z0-9-]+$ ]] || \
+             [[ "$BRANCH_NAME" =~ ^refactor/[a-z0-9-]+$ ]] || \
+             [[ "$BRANCH_NAME" =~ ^docs/[a-z0-9-]+$ ]] || \
+             [[ "$BRANCH_NAME" =~ ^bench/[a-z0-9-]+$ ]]; then
+            echo "Branch name '$BRANCH_NAME' is valid."
+            exit 0
+          fi
+
+          echo "Invalid branch name: '$BRANCH_NAME'"
+          echo "Expected one of:"
+          echo "  - feature/<issue>-<short-desc>"
+          echo "  - fix/<issue>-<short-desc>"
+          echo "  - refactor/<short-desc>"
+          echo "  - docs/<short-desc>"
+          echo "  - bench/<short-desc>"
+          exit 1

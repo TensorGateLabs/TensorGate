@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Discussions
-    url: https://github.com/syed-dawood/TensorGate/discussions
+    url: https://github.com/TensorGateLabs/TensorGate/discussions
     about: Ask questions, share ideas, or discuss the project
   - name: NIST AI RMF
     url: https://www.nist.gov/artificial-intelligence

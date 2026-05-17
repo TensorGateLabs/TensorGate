@@ -1,7 +1,7 @@
-# Default owner for all repository paths
+# TensorGateLabs — default reviewers until org teams are defined.
 * @syed-dawood
 
-# CI/CD and governance
+# CI/CD and automation
 .github/ @syed-dawood
 
 # Documentation

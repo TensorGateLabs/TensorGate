@@ -95,7 +95,7 @@ This project is under active development following a structured sprint cadence:
 | Sprint 2 | Memory Optimization & Inference Engines | Days 15–28 |
 | Sprint 3 | Concurrency, Hot-Swapping & Validation | Days 29–42 |
 
-Track progress on the [TensorGate Project Board](https://github.com/users/syed-dawood/projects/1).
+Track progress on the [TensorGate Project Board](https://github.com/users/syed-dawood/projects/1) (org repo: [TensorGateLabs/TensorGate](https://github.com/TensorGateLabs/TensorGate)).
 
 ## Getting Started
 
@@ -105,7 +105,7 @@ Track progress on the [TensorGate Project Board](https://github.com/users/syed-d
 
 ```bash
 # Clone the repository
-git clone https://github.com/syed-dawood/TensorGate.git
+git clone https://github.com/TensorGateLabs/TensorGate.git
 cd TensorGate
 
 # Build

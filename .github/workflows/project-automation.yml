@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
+      # Board owner is still the founder user project; see docs/repository-organization.md for org migration.
       - uses: actions/add-to-project@v1.0.2
         with:
           project-url: https://github.com/users/syed-dawood/projects/1

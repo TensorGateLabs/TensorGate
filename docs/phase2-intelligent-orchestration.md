@@ -84,10 +84,10 @@ Scripts:
 
 ```bash
 # issue intelligence + routing visibility
-gh issue view <issue> --repo syed-dawood/TensorGate
+gh issue view <issue> --repo TensorGateLabs/TensorGate
 
 # PR checks
-gh pr checks <pr> --repo syed-dawood/TensorGate
+gh pr checks <pr> --repo TensorGateLabs/TensorGate
 
 # local preflight
 ./scripts/preflight.sh

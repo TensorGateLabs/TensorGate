@@ -12,8 +12,10 @@
 
 If you discover a security vulnerability in TensorGate, please report it responsibly:
 
-1. **Email:** Send a detailed report to the repository maintainer via the contact information on their [GitHub profile](https://github.com/syed-dawood).
-2. **Include:**
+1. **GitHub Security Advisories:** Use [Report a vulnerability](https://github.com/TensorGateLabs/TensorGate/security/advisories/new) on this repository (preferred).
+2. **Maintainer contact:** Reach the TensorGateLabs maintainers via [GitHub Discussions](https://github.com/TensorGateLabs/TensorGate/discussions) only for coordination after submitting an advisory — do not post exploit details publicly.
+
+**Include in your report:**
    - Description of the vulnerability
    - Steps to reproduce
    - Potential impact assessment

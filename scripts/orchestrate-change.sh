@@ -10,12 +10,15 @@ if [ -z "${ISSUE_ID}" ]; then
   exit 1
 fi
 
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && ./scripts/github-repo.sh)"
+
 echo "== TensorGate orchestrated change flow =="
 echo "Issue: #${ISSUE_ID}"
+echo "Repo: ${REPO}"
 
 echo ""
 echo "[1/6] Load issue context"
-gh issue view "${ISSUE_ID}" --repo syed-dawood/TensorGate --json number,title,labels,milestone,url --jq '.'
+gh issue view "${ISSUE_ID}" --repo "${REPO}" --json number,title,labels,milestone,url --jq '.'
 
 echo ""
 echo "[2/6] Run local preflight"
@@ -42,7 +45,7 @@ git push -u origin "${BRANCH}"
 echo ""
 echo "[5/6] Display PR command hint"
 echo "Create PR with:"
-echo "gh pr create --repo syed-dawood/TensorGate --fill --body \"Closes #${ISSUE_ID}\""
+echo "gh pr create --repo ${REPO} --fill --body \"Closes #${ISSUE_ID}\""
 
 echo ""
 echo "[6/6] Post-push check hint"

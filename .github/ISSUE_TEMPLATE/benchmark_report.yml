@@ -1,0 +1,65 @@
+name: Benchmark / Performance Report
+description: Report performance results, regressions, or profiling findings
+title: "[Benchmark]: "
+labels: ["type:benchmark"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to report benchmark results, performance regressions, or memory profiling findings.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Report Type
+      options:
+        - Performance regression
+        - New benchmark results
+        - Memory allocation finding
+        - GC profiling results
+        - Thread pool analysis
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief summary of the performance finding.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Hardware and software details.
+      placeholder: |
+        - CPU: Intel Xeon E-2388G (8C/16T, 3.2GHz, AVX-512)
+        - RAM: 64 GB DDR4-3200
+        - OS: Ubuntu 24.04 LTS
+        - .NET: 9.0.100
+        - ONNX Runtime: 1.19.x
+    validations:
+      required: true
+
+  - type: textarea
+    id: results
+    attributes:
+      label: Results
+      description: Include benchmark output, profiler screenshots, or measurement data.
+      placeholder: |
+        | Metric        | Baseline | Current  | Delta   |
+        |:-------------|:---------|:---------|:--------|
+        | p50 latency  | 10.2ms   | 14.8ms   | +45%    |
+        | Allocations  | 0 B      | 1,024 B  | +1 KB   |
+    validations:
+      required: true
+
+  - type: textarea
+    id: analysis
+    attributes:
+      label: Analysis
+      description: Your interpretation of the results, suspected root cause, or recommended action.

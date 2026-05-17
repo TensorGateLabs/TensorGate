@@ -35,6 +35,26 @@ This document defines how to use Cursor-native agents and MCP tools consistently
 5. **Close**
    - Update issue/PR with outcomes and next action.
 
+## Local Agentic Lifecycle (PM -> Dev -> QA -> DevOps)
+
+Use this local sequence before PR creation:
+
+1. PM framing:
+   - confirm issue scope and acceptance criteria
+2. Dev execution:
+   - implement minimal bounded change
+3. QA challenge:
+   - run deterministic tests and edge/failure checks
+4. DevOps verification:
+   - evaluate CI/workflow impact and traceability
+
+Recommended commands:
+
+```bash
+./scripts/preflight.sh
+./scripts/agentic-local-gate.sh
+```
+
 ## CI Failure Runbook
 
 1. `gh pr checks <pr-number>`

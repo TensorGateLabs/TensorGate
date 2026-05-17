@@ -1,6 +1,8 @@
 # TensorGate
 
-**Production-grade ASP.NET Core middleware for AI safety** — a zero-allocation YARP reverse proxy with local ONNX inference for real-time LLM payload inspection, prompt injection detection, and semantic sanitization.
+**Production-grade ASP.NET Core middleware for AI safety** — a zero-allocation
+YARP reverse proxy with local ONNX inference for real-time LLM payload
+inspection, prompt injection detection, and semantic sanitization.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
@@ -10,11 +12,19 @@
 
 ## Overview
 
-TensorGate is an out-of-process containerized sidecar that intercepts, evaluates, and sanitizes Large Language Model (LLM) traffic in real time. It sits between your application and upstream LLM providers as a YARP reverse proxy, running local INT8-quantized ONNX classification models to detect prompt injections and adversarial payloads — all within a strict sub-50ms latency budget on pure CPU hardware.
+TensorGate is an out-of-process containerized sidecar that intercepts,
+evaluates, and sanitizes Large Language Model (LLM) traffic in real time.
+It sits between your application and upstream LLM providers as a YARP
+reverse proxy, running local INT8-quantized ONNX classification models
+to detect prompt injections and adversarial payloads within a strict
+sub-50ms latency budget on pure CPU hardware.
 
 ### Key Design Principles
 
-- **Zero-Allocation Pipeline** — From raw HTTP bytes to ONNX tensor evaluation, the entire hot path avoids managed heap allocations using `Span<T>`, `ArrayPool<T>`, and `Utf8JsonReader`/`Utf8JsonWriter` to eliminate GC pauses under high concurrency.
+- **Zero-Allocation Pipeline** — From raw HTTP bytes to ONNX tensor evaluation,
+  the hot path avoids managed heap allocations using `Span<T>`,
+  `ArrayPool<T>`, and `Utf8JsonReader`/`Utf8JsonWriter` to eliminate GC pauses
+  under high concurrency.
 - **CPU-Only Inference** — INT8 statically quantized `all-MiniLM-L6-v2` achieves 8–12ms classification latency via AVX-512 VNNI, fitting entirely within L3 cache (~23 MB).
 - **SSE Stream Preservation** — Transparent forwarding of `text/event-stream` responses without buffering, maintaining real-time token streaming from upstream providers.
 - **Lock-Free Hot Reload** — Atomic reference-counted model swapping via `RefCountDisposable` pattern enables zero-downtime weight updates without race conditions or access violations.
@@ -22,7 +32,7 @@ TensorGate is an out-of-process containerized sidecar that intercepts, evaluates
 
 ## Architecture
 
-```
+```text
 ┌─────────────┐     ┌──────────────────────────────────────────┐     ┌──────────────┐
 │  Application │────▶│              TensorGate Sidecar           │────▶│  LLM Provider │
 │  (Internal)  │◀────│                                          │◀────│  (Upstream)   │
@@ -101,6 +111,10 @@ dotnet run --project src/TensorGate.Proxy
 ## Contributing
 
 Contributions are welcome. Please read the [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
+For operational flow and engineering runbooks, see
+[Operating Pipeline](docs/operating-pipeline.md).
+For Cursor-native agent/MCP execution strategy, see
+[Cursor Agent Ops](docs/cursor-agent-ops.md).
 
 ## License
 

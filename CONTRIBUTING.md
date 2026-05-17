@@ -41,7 +41,7 @@ Always branch from `main`. Keep branches short-lived.
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 <type>(<scope>): <description>
 
 [optional body]
@@ -54,7 +54,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 **Scopes:** `proxy`, `tokenizer`, `inference`, `concurrency`, `memory`, `validation`, `ci`
 
 **Examples:**
-```
+```text
 feat(proxy): implement Utf8JsonReader state machine for prompt extraction
 fix(inference): prevent ArrayPool lease leak on OrtValue binding failure
 bench(tokenizer): add BenchmarkDotNet suite for WordPiece encoding

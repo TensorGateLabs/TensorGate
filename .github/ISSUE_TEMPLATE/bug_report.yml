@@ -52,7 +52,7 @@ body:
     attributes:
       label: .NET Version
       description: Output of `dotnet --version`
-      placeholder: "9.0.100"
+      placeholder: "10.0.100"
     validations:
       required: true
 

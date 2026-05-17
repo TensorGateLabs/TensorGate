@@ -40,7 +40,7 @@ body:
         - CPU: Intel Xeon E-2388G (8C/16T, 3.2GHz, AVX-512)
         - RAM: 64 GB DDR4-3200
         - OS: Ubuntu 24.04 LTS
-        - .NET: 9.0.100
+        - .NET: 10.0.100
         - ONNX Runtime: 1.19.x
     validations:
       required: true

@@ -1,0 +1,134 @@
+name: PR Intelligence
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review-and-qa-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build review and QA plan
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner,
+              repo,
+              pull_number: pr.number,
+              per_page: 100
+            });
+
+            const names = files.map(f => f.filename.toLowerCase());
+            const changed = (predicate) => names.some(predicate);
+
+            const reviewChecklist = [];
+            const qaChecklist = [];
+            const labels = new Set();
+
+            if (changed(n => n.startsWith(".github/workflows/") || n.startsWith(".github/"))) {
+              reviewChecklist.push("- [ ] **CI/Security review:** verify workflow permissions, triggers, and token scopes.");
+              qaChecklist.push("- [ ] Execute dry-run by confirming expected checks appear on PR.");
+              labels.add("component:ci-cd");
+            }
+
+            if (changed(n => n.includes("docs/") || n.endsWith(".md"))) {
+              reviewChecklist.push("- [ ] **Docs review:** validate technical accuracy and migration steps.");
+              qaChecklist.push("- [ ] Confirm `markdown-lint` and `link-check` are green.");
+              labels.add("documentation");
+            }
+
+            if (changed(n => n.includes("proxy") || n.includes("yarp"))) {
+              reviewChecklist.push("- [ ] **Proxy review:** verify routing behavior and SSE non-buffering assumptions.");
+              qaChecklist.push("- [ ] Add/validate integration tests for request/response transforms.");
+              labels.add("component:proxy");
+            }
+
+            if (changed(n => n.includes("tokenizer"))) {
+              reviewChecklist.push("- [ ] **Tokenizer review:** ensure no hidden allocations/regressions on hot path.");
+              qaChecklist.push("- [ ] Validate tokenization output against golden cases.");
+              labels.add("component:tokenizer");
+            }
+
+            if (changed(n => n.includes("inference") || n.includes("onnx"))) {
+              reviewChecklist.push("- [ ] **Inference review:** confirm deterministic disposal and no unsafe session lifecycle changes.");
+              qaChecklist.push("- [ ] Benchmark p50/p99 impact and allocation profile.");
+              labels.add("component:inference");
+            }
+
+            if (changed(n => n.includes("memory") || n.includes("arraypool"))) {
+              reviewChecklist.push("- [ ] **Memory review:** verify pool-return paths and exception safety.");
+              qaChecklist.push("- [ ] Run allocation-focused tests/benchmarks.");
+              labels.add("component:memory");
+            }
+
+            if (changed(n => n.includes("concurrency") || n.includes("refcount"))) {
+              reviewChecklist.push("- [ ] **Concurrency review:** validate race safety under parallel request simulation.");
+              qaChecklist.push("- [ ] Execute stress tests for acquire/release and swap scenarios.");
+              labels.add("component:concurrency");
+            }
+
+            if (reviewChecklist.length === 0) {
+              reviewChecklist.push("- [ ] General code review: correctness, readability, and test adequacy.");
+              qaChecklist.push("- [ ] Run baseline preflight checks.");
+            }
+
+            const body = [
+              "### PR Intelligence: Review + QA Plan",
+              "",
+              "#### Review Gate",
+              ...reviewChecklist,
+              "",
+              "#### QA Gate (non-biased / critical)",
+              ...qaChecklist,
+              "",
+              "#### Merge Readiness",
+              "- [ ] Linked issue exists and acceptance criteria are explicit.",
+              "- [ ] Risk, rollback path, and test evidence are documented in PR description.",
+              "- [ ] Required checks are green and no unresolved blocking comments remain.",
+            ].join("\n");
+
+            // Upsert a single bot comment (avoid comment spam)
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: pr.number, per_page: 100
+            });
+            const marker = "### PR Intelligence: Review + QA Plan";
+            const existing = comments.find(c => c.user?.type === "Bot" && c.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: pr.number,
+                body
+              });
+            }
+
+            if (labels.size > 0) {
+              try {
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  labels: Array.from(labels),
+                });
+              } catch (e) {
+                core.warning(`Could not apply one or more labels: ${e.message}`);
+              }
+            }

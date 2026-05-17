@@ -1,0 +1,49 @@
+name: PR Readiness Gate
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR metadata for human-authored changes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const actor = context.actor || "";
+            const body = pr.body || "";
+
+            if (actor === "dependabot[bot]" || pr.head.ref.startsWith("dependabot/")) {
+              core.info("Dependabot PR: skipping human metadata gate.");
+              return;
+            }
+
+            const failures = [];
+
+            const hasIssueLink =
+              /closes\s+#\d+/i.test(body) ||
+              /relates\s+to\s+#\d+/i.test(body) ||
+              /fixes\s+#\d+/i.test(body);
+            if (!hasIssueLink) {
+              failures.push("PR body must include an issue link (e.g. `Closes #123` or `Relates to #123`).");
+            }
+
+            const hasTestingEvidence =
+              /unit tests added\/updated/i.test(body) ||
+              /integration tests added\/updated/i.test(body) ||
+              /manual testing performed/i.test(body);
+            if (!hasTestingEvidence) {
+              failures.push("PR body should include testing evidence from the template checklist.");
+            }
+
+            if (failures.length > 0) {
+              core.setFailed(`PR readiness gate failed:\n- ${failures.join("\n- ")}`);
+            }

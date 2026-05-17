@@ -115,6 +115,8 @@ For operational flow and engineering runbooks, see
 [Operating Pipeline](docs/operating-pipeline.md).
 For Cursor-native agent/MCP execution strategy, see
 [Cursor Agent Ops](docs/cursor-agent-ops.md).
+For full lifecycle automation design, see
+[Phase 2 Intelligent Orchestration](docs/phase2-intelligent-orchestration.md).
 
 ## License
 

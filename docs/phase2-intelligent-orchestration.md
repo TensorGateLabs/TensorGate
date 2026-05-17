@@ -24,6 +24,12 @@ Workflow: `.github/workflows/issue-intelligence.yml`
 Workflow: `.github/workflows/project-automation.yml`
 
 - adds issues/PRs to the project board automatically
+- synchronizes Project v2 fields from labels:
+  - `Sprint` from `sprint:*`
+  - `Priority` from `priority:*`
+  - `Component` from `component:*`
+  - `Role` from `role:*`
+  - `Status` defaults to `Todo`
 - uses `TG_PROJECT_TOKEN` (PAT with `project` + `repo` scopes)
 
 ### Layer C: PR Intelligence
@@ -74,3 +80,13 @@ gh pr checks <pr> --repo syed-dawood/TensorGate
 # local preflight
 ./scripts/preflight.sh
 ```
+
+## One-Time Setup (Required)
+
+Create repository secret `TG_PROJECT_TOKEN` containing a PAT with:
+
+- `repo`
+- `project`
+
+Without this secret, project field synchronization is skipped and the workflow
+will emit a setup notice.

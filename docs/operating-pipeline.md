@@ -6,6 +6,8 @@ This runbook defines a deterministic engineering flow for solo and multi-contrib
 
 - Source of truth: GitHub issues + project board.
 - Every item must have: `component:*`, `type:*`, `priority:*`, `sprint:*`.
+- Issue Intelligence + Project Automation workflows apply and sync these labels
+  into Project v2 fields automatically when possible.
 - Branch naming must follow:
   - `feature/<issue>-<short-desc>`
   - `fix/<issue>-<short-desc>`

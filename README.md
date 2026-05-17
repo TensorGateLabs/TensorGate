@@ -119,6 +119,10 @@ For full lifecycle automation design, see
 [Phase 2 Intelligent Orchestration](docs/phase2-intelligent-orchestration.md).
 For robust local-first agentic shipping practices, see
 [Agentic Shipping Research and Playbook](docs/agentic-shipping-research-and-playbook.md).
+For requirement-to-merge evidence automation, see
+[Phase 2.3 Traceability and Evidence](docs/phase2-3-traceability-and-evidence.md).
+For 2026-specific research and next-step maturity recommendations, see
+[Agentic Development Research 2026](docs/agentic-development-research-2026.md).
 
 ## License
 

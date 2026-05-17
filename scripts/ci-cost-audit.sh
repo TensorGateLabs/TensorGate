@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-REPO="${1:-syed-dawood/TensorGate}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO="${1:-$("${ROOT}/scripts/github-repo.sh")}"
 LIMIT="${2:-200}"
 
 echo "== CI cost audit =="

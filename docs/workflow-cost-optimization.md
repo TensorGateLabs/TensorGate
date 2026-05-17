@@ -50,7 +50,7 @@ These are short metadata workflows and are kept event-based.
 4. Review monthly run volume:
 
 ```bash
-gh run list --repo syed-dawood/TensorGate --limit 200
+gh run list --repo TensorGateLabs/TensorGate --limit 200
 ```
 
 5. If costs rise, trim first from Tier 2 frequency before touching Tier 1.

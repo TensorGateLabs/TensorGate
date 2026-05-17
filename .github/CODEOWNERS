@@ -1,9 +1,9 @@
-# Default owner for all repository paths
-* @syed-dawood
+# TensorGateLabs maintainers team (see org Teams → maintainers)
+* @TensorGateLabs/maintainers
 
-# CI/CD and governance
-.github/ @syed-dawood
+# CI/CD and automation
+.github/ @TensorGateLabs/maintainers
 
 # Documentation
-*.md @syed-dawood
-docs/ @syed-dawood
+*.md @TensorGateLabs/maintainers
+docs/ @TensorGateLabs/maintainers

@@ -14,10 +14,29 @@ permissions:
   contents: read
 
 jobs:
+  detect-dotnet-workspace:
+    name: Detect .NET Workspace
+    runs-on: ubuntu-latest
+    outputs:
+      has_dotnet_workspace: ${{ steps.detect.outputs.has_dotnet_workspace }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Detect solution or project files
+        id: detect
+        run: |
+          if [ -n "$(find . -type f \( -name "*.sln" -o -name "*.csproj" \) -print -quit)" ]; then
+            echo "has_dotnet_workspace=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_dotnet_workspace=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
     name: Build & Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: detect-dotnet-workspace
+    if: needs.detect-dotnet-workspace.outputs.has_dotnet_workspace == 'true'
 
     steps:
       - name: Checkout
@@ -57,6 +76,8 @@ jobs:
     name: Format Check
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    needs: detect-dotnet-workspace
+    if: needs.detect-dotnet-workspace.outputs.has_dotnet_workspace == 'true'
 
     steps:
       - name: Checkout
@@ -70,3 +91,14 @@ jobs:
 
       - name: Check formatting
         run: dotnet format --verify-no-changes --verbosity diagnostic
+
+  bootstrap-ok:
+    name: Bootstrap CI Guard
+    runs-on: ubuntu-latest
+    needs: detect-dotnet-workspace
+    if: needs.detect-dotnet-workspace.outputs.has_dotnet_workspace == 'false'
+    steps:
+      - name: Report bootstrap state
+        run: |
+          echo "No .sln or .csproj detected yet."
+          echo "Build/test/format checks are intentionally skipped until project scaffolding exists."

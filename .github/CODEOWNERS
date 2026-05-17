@@ -1,0 +1,9 @@
+# Default owner for all repository paths
+* @syed-dawood
+
+# CI/CD and governance
+.github/ @syed-dawood
+
+# Documentation
+*.md @syed-dawood
+docs/ @syed-dawood

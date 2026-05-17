@@ -1,0 +1,10 @@
+xs:
+  max: 20
+s:
+  max: 100
+m:
+  max: 400
+l:
+  max: 800
+xl:
+  max: 1600

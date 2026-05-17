@@ -3,7 +3,7 @@
 **Production-grade ASP.NET Core middleware for AI safety** — a zero-allocation YARP reverse proxy with local ONNX inference for real-time LLM payload inspection, prompt injection detection, and semantic sanitization.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
 [![NIST AI RMF](https://img.shields.io/badge/NIST-AI%20600--1%20RMF-green.svg)](https://www.nist.gov/artificial-intelligence)
 
 ---
@@ -79,7 +79,9 @@ Track progress on the [TensorGate Project Board](https://github.com/users/syed-d
 
 ## Getting Started
 
-> **Prerequisites:** .NET 9.0 SDK, Docker (optional for sidecar deployment)
+> **Prerequisites:** .NET 10.0 SDK (LTS), Docker (optional for sidecar deployment)
+>
+> **Language policy:** TensorGate tracks the latest stable C# language version via central build settings.
 
 ```bash
 # Clone the repository

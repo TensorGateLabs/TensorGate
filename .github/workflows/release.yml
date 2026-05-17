@@ -2,30 +2,28 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    tags: ['v*.*.*']
 
 permissions:
   contents: write
-  packages: write
-
-env:
-  DOTNET_VERSION: '9.0.x'
-  DOTNET_NOLOGO: true
 
 jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'ga'
 
       - name: Restore
         run: dotnet restore
@@ -36,21 +34,26 @@ jobs:
       - name: Test
         run: dotnet test --no-build --configuration Release
 
-      - name: Pack NuGet
+      - name: Pack
         run: dotnet pack --no-build --configuration Release --output ./artifacts
 
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+      - name: Generate release notes
+        id: notes
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          PREV_TAG=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            NOTES=$(git log "$PREV_TAG..$TAG" --pretty=format:"- %s (%h)" --no-merges)
+          else
+            NOTES=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          echo "notes<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$NOTES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}
           files: ./artifacts/*.nupkg
-
-      - name: Push to NuGet.org
-        if: ${{ !contains(github.ref_name, '-') }}
-        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          fail_on_unmatched_files: false

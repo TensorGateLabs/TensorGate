@@ -1,0 +1,33 @@
+component:ci-cd:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
+          - ".github/dependabot.yml"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "*.md"
+          - "docs/**"
+          - ".github/ISSUE_TEMPLATE/**"
+
+component:proxy:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/**/Proxy/**"
+
+component:tokenizer:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/**/Tokenizer/**"
+
+component:inference:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/**/Inference/**"
+
+component:memory:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/**/Memory/**"
+          - "**/Benchmark*/**"

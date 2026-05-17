@@ -1,128 +1,121 @@
 # Contributing to TensorGate
 
-Thank you for your interest in contributing to TensorGate. This document provides guidelines and information to help you contribute effectively.
-
-## Code of Conduct
-
-This project adheres to the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+Thank you for your interest in contributing to TensorGate. This document provides guidelines and conventions for contributing to the project.
 
 ## Getting Started
 
+1. Fork the repository and clone your fork
+2. Create a feature branch from `main`
+3. Make your changes following the conventions below
+4. Push to your fork and open a pull request
+
 ### Prerequisites
 
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) or later
-- Git
-- A C# editor (VS Code with C# Dev Kit, Visual Studio, or Rider)
+- [.NET 10.0 SDK (LTS)](https://dotnet.microsoft.com/download)
+- [Docker](https://www.docker.com/) (optional, for container testing)
+- A C# editor with EditorConfig support (VS Code, Visual Studio, Rider)
+- Latest stable C# compiler support (configured centrally via `Directory.Build.props`)
 
-### Setting Up
+### Building
 
 ```bash
-git clone https://github.com/syed-dawood/TensorGate.git
-cd TensorGate
 dotnet restore
-dotnet build
+dotnet build --configuration Release
 dotnet test
 ```
 
-## How to Contribute
+## Branching Strategy
 
-### Reporting Issues
+| Branch Pattern | Purpose |
+|:---------------|:--------|
+| `main` | Stable, release-ready code |
+| `feature/<issue>-<short-desc>` | New features (e.g., `feature/7-tokenizer-integration`) |
+| `fix/<issue>-<short-desc>` | Bug fixes (e.g., `fix/23-sse-buffering`) |
+| `refactor/<short-desc>` | Non-functional improvements |
+| `docs/<short-desc>` | Documentation changes |
+| `bench/<short-desc>` | Benchmark additions or changes |
 
-- Use the [issue templates](https://github.com/syed-dawood/TensorGate/issues/new/choose) to report bugs, request features, or submit benchmark findings.
-- Search existing issues before creating a new one.
-- Provide as much context as possible — .NET version, OS, error messages, and steps to reproduce.
+Always branch from `main`. Keep branches short-lived.
 
-### Submitting Pull Requests
+## Commit Messages
 
-1. **Fork** the repository and create a feature branch from `main`:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Make your changes.** Follow the coding standards below.
-
-3. **Write tests.** All new functionality must have corresponding tests. Performance-critical changes must include benchmark results.
-
-4. **Verify locally:**
-   ```bash
-   dotnet build --configuration Release /p:TreatWarningsAsErrors=true
-   dotnet test --configuration Release
-   dotnet format --verify-no-changes
-   ```
-
-5. **Commit** with clear, descriptive messages (see commit conventions below).
-
-6. **Push** to your fork and open a pull request against `main`.
-
-7. **Fill out** the PR template completely.
-
-### Commit Message Conventions
-
-This project follows [Conventional Commits](https://www.conventionalcommits.org/):
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-<type>(<scope>): <subject>
+<type>(<scope>): <description>
 
-<body>
+[optional body]
 
-<footer>
+[optional footer]
 ```
 
-**Types:** `feat`, `fix`, `perf`, `refactor`, `test`, `docs`, `ci`, `chore`
+**Types:** `feat`, `fix`, `refactor`, `test`, `bench`, `docs`, `ci`, `chore`
 
-**Scopes:** `proxy`, `tokenizer`, `inference`, `concurrency`, `memory`, `ci`, `docs`
+**Scopes:** `proxy`, `tokenizer`, `inference`, `concurrency`, `memory`, `validation`, `ci`
 
 **Examples:**
 ```
-feat(proxy): implement Utf8JsonReader FSM for zero-alloc JSON extraction
-fix(inference): prevent ArrayPool leak on OrtValue binding exception
-perf(tokenizer): reduce BertTokenizer encode time by 15% via span optimization
-test(concurrency): add stress test for RefCountDisposable under 500 threads
-docs: update architecture diagram with hot-reload sequence
-ci: add format check to CI pipeline
+feat(proxy): implement Utf8JsonReader state machine for prompt extraction
+fix(inference): prevent ArrayPool lease leak on OrtValue binding failure
+bench(tokenizer): add BenchmarkDotNet suite for WordPiece encoding
+docs(adr): add ADR-002 for zero-allocation JSON parsing decision
 ```
 
-## Coding Standards
+## Pull Request Guidelines
 
-### General
+- Reference the related issue: `Closes #7` or `Relates to #12`
+- Fill out the PR template completely
+- Ensure CI passes before requesting review
+- Keep PRs focused — one logical change per PR
+- Add tests for new functionality
+- Update documentation if behavior changes
 
-- Target **.NET 9.0** with C# 13 language features.
-- Treat all warnings as errors in Release configuration.
-- Use `dotnet format` to enforce style. The `.editorconfig` in the repo root defines the rules.
+### PR Size Guidelines
+
+| Size | Lines Changed | Review Expectation |
+|:-----|:-------------|:-------------------|
+| Small | < 100 | Quick review, same day |
+| Medium | 100–400 | Thorough review, 1–2 days |
+| Large | 400+ | Consider splitting |
+
+## Code Style
+
+This project uses `.editorconfig` for formatting. Run `dotnet format` before committing.
+
+### Key Conventions
+
+- **Naming:** PascalCase for public members, `_camelCase` for private fields
+- **Nullability:** Nullable reference types are enabled — no suppressions (`!`) without a comment explaining why
+- **Async:** Suffix async methods with `Async`; do not use `async void`
+- **Disposal:** All `IDisposable` resources must be in `using` blocks or deterministic disposal patterns
+- **Allocations:** Hot-path code must use `Span<T>`, `ArrayPool<T>`, and stack-based allocation — verify with `[MemoryDiagnoser]`
+- **Comments:** Explain *why*, not *what*. No narration comments.
 
 ### Performance-Critical Code
 
-This project has strict zero-allocation requirements on the hot path. When contributing to performance-critical components:
+For code in the request pipeline hot path:
 
-- **No LINQ on the hot path.** LINQ allocates enumerator objects. Use `for`/`foreach` over `Span<T>` or arrays.
-- **No `string` manipulation on the hot path.** Use `ReadOnlySpan<char>` or `ReadOnlySpan<byte>`.
-- **Use `ArrayPool<T>`** instead of `new T[]` for temporary buffers. Always return buffers in `finally` blocks.
-- **Avoid `async`/`await`** in the inference pipeline. The `Utf8JsonReader` is a `ref struct` and cannot cross async boundaries.
-- **No boxing.** Avoid casting value types to `object` or interfaces.
-- **Benchmark your changes.** Include BenchmarkDotNet results showing allocation counts and median latency.
+- No LINQ on hot paths (use `for`/`foreach` with spans)
+- No `string` concatenation or interpolation (use `Utf8JsonWriter` or `StringBuilder`)
+- No closures or lambda captures (prevents hidden allocations)
+- Verify with BenchmarkDotNet `[MemoryDiagnoser]` showing 0 bytes allocated
 
-### Naming Conventions
+## Testing
 
-| Element | Convention | Example |
-|:--------|:-----------|:--------|
-| Class / Struct | PascalCase | `RefCountDisposable` |
-| Interface | IPascalCase | `IModelSession` |
-| Method | PascalCase | `AcquireReference()` |
-| Local variable | camelCase | `tokenCount` |
-| Private field | _camelCase | `_activeSession` |
-| Constant | PascalCase | `MaxSequenceLength` |
+- **Unit tests:** Required for all new public APIs
+- **Integration tests:** Required for pipeline changes (proxy → tokenizer → inference)
+- **Benchmarks:** Required for any hot-path changes
+- **Naming:** `MethodName_Condition_ExpectedResult` (e.g., `ExtractPrompt_EmptyPayload_ReturnsEmptySpan`)
 
-## Architecture Decision Records
+## Issue Labels
 
-Significant architectural decisions are documented as ADRs in `docs/adr/`. If your contribution involves a meaningful design choice, please add or update an ADR following the existing format.
+When creating issues, apply labels from these dimensions:
 
-## Review Process
-
-- All PRs require at least one approval before merging.
-- CI must pass (build, tests, format check).
-- Performance-critical PRs require benchmark results in the PR description.
-- Breaking changes require discussion in a GitHub issue before implementation.
+- **Component:** `component:proxy`, `component:tokenizer`, `component:inference`, `component:concurrency`, `component:memory`, `component:validation`, `component:ci-cd`
+- **Type:** `type:feature`, `type:research`, `type:benchmark`, `type:architecture`, `type:testing`, `type:infrastructure`
+- **Priority:** `priority:critical`, `priority:high`, `priority:medium`
+- **Sprint:** `sprint:1`, `sprint:2`, `sprint:3`
 
 ## License
 
-By contributing to TensorGate, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE).

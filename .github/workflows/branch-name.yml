@@ -16,7 +16,7 @@ jobs:
           BRANCH_NAME: ${{ github.head_ref }}
           ACTOR: ${{ github.actor }}
         run: |
-          if [[ "$ACTOR" == "dependabot[bot]" ]]; then
+          if [[ "$ACTOR" == "dependabot[bot]" ]] || [[ "$BRANCH_NAME" =~ ^dependabot/ ]]; then
             echo "Dependabot branch detected, skipping naming enforcement."
             exit 0
           fi

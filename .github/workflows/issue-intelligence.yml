@@ -1,0 +1,96 @@
+name: Issue Intelligence
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  triage-and-route:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Intelligent triage and routing
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const title = (issue.title || "").toLowerCase();
+            const body = (issue.body || "").toLowerCase();
+            const text = `${title}\n${body}`;
+
+            const existing = new Set((issue.labels || []).map(l => l.name));
+            const labelsToAdd = new Set();
+
+            const add = (label) => {
+              if (!existing.has(label)) labelsToAdd.add(label);
+            };
+
+            // Type inference
+            if (text.includes("[bug]") || text.includes("bug") || text.includes("error") || text.includes("exception") || text.includes("regression")) {
+              add("bug");
+              add("type:testing");
+            } else if (text.includes("[feature]") || text.includes("feature") || text.includes("enhancement")) {
+              add("type:feature");
+            } else if (text.includes("benchmark") || text.includes("latency") || text.includes("allocation") || text.includes("throughput")) {
+              add("type:benchmark");
+            } else if (text.includes("research") || text.includes("investigate") || text.includes("spike")) {
+              add("type:research");
+            } else if (text.includes("architecture") || text.includes("adr") || text.includes("design")) {
+              add("type:architecture");
+            } else {
+              add("question");
+            }
+
+            // Component inference
+            if (text.includes("yarp") || text.includes("proxy") || text.includes("sse") || text.includes("requesttransform")) add("component:proxy");
+            if (text.includes("tokenizer") || text.includes("wordpiece") || text.includes("bert")) add("component:tokenizer");
+            if (text.includes("onnx") || text.includes("inference") || text.includes("ortvalue") || text.includes("minilm")) add("component:inference");
+            if (text.includes("memory") || text.includes("allocation") || text.includes("arraypool") || text.includes("loh")) add("component:memory");
+            if (text.includes("concurrency") || text.includes("interlocked") || text.includes("refcount") || text.includes("hot-swap")) add("component:concurrency");
+            if (text.includes("harmbench") || text.includes("validation") || text.includes("f1-score") || text.includes("nist")) add("component:validation");
+            if (text.includes("workflow") || text.includes("github action") || text.includes("ci") || text.includes("pipeline")) add("component:ci-cd");
+
+            // Priority inference
+            if (text.includes("critical") || text.includes("blocker") || text.includes("sev1") || text.includes("p0")) {
+              add("priority:critical");
+            } else if (text.includes("high") || text.includes("urgent") || text.includes("sev2") || text.includes("p1")) {
+              add("priority:high");
+            } else {
+              add("priority:medium");
+            }
+
+            // Sprint heuristic by component/type
+            let sprint = "sprint:2";
+            if (text.includes("proxy") || text.includes("yarp") || text.includes("sse") || text.includes("route")) sprint = "sprint:1";
+            if (text.includes("concurrency") || text.includes("refcount") || text.includes("harmbench") || text.includes("validation") || text.includes("f1-score")) sprint = "sprint:3";
+            add(sprint);
+
+            if (labelsToAdd.size > 0) {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: issue.number,
+                labels: Array.from(labelsToAdd),
+              });
+            }
+
+            const triageSummary = [
+              "### TensorGate Issue Intelligence",
+              "",
+              `- Applied labels: ${labelsToAdd.size > 0 ? Array.from(labelsToAdd).map(l => `\`${l}\``).join(", ") : "_none_ (already up to date)"}`,
+              "- Sprint routing uses component/type heuristics and can be overridden by maintainers.",
+              "- If this routing looks off, edit labels directly and the board automation will follow.",
+            ].join("\n");
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: issue.number,
+              body: triageSummary,
+            });

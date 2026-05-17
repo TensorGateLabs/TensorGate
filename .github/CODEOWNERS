@@ -1,9 +1,9 @@
-# TensorGateLabs — default reviewers until org teams are defined.
-* @syed-dawood
+# TensorGateLabs maintainers team (see org Teams → maintainers)
+* @TensorGateLabs/maintainers
 
 # CI/CD and automation
-.github/ @syed-dawood
+.github/ @TensorGateLabs/maintainers
 
 # Documentation
-*.md @syed-dawood
-docs/ @syed-dawood
+*.md @TensorGateLabs/maintainers
+docs/ @TensorGateLabs/maintainers

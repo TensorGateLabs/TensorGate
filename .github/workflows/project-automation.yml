@@ -18,10 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      # Board owner is still the founder user project; see docs/repository-organization.md for org migration.
       - uses: actions/add-to-project@v1.0.2
         with:
-          project-url: https://github.com/users/syed-dawood/projects/1
+          project-url: https://github.com/orgs/TensorGateLabs/projects/1
           github-token: ${{ secrets.TG_PROJECT_TOKEN }}
 
   infer_field_values:
@@ -96,7 +95,7 @@ jobs:
       - uses: github/update-project-action@v4
         with:
           github_token: ${{ secrets.TG_PROJECT_TOKEN }}
-          user: syed-dawood
+          organization: TensorGateLabs
           project_number: 1
           content_id: ${{ needs.infer_field_values.outputs.content_id }}
           field: Status
@@ -112,7 +111,7 @@ jobs:
       - uses: github/update-project-action@v4
         with:
           github_token: ${{ secrets.TG_PROJECT_TOKEN }}
-          user: syed-dawood
+          organization: TensorGateLabs
           project_number: 1
           content_id: ${{ needs.infer_field_values.outputs.content_id }}
           field: Sprint
@@ -128,7 +127,7 @@ jobs:
       - uses: github/update-project-action@v4
         with:
           github_token: ${{ secrets.TG_PROJECT_TOKEN }}
-          user: syed-dawood
+          organization: TensorGateLabs
           project_number: 1
           content_id: ${{ needs.infer_field_values.outputs.content_id }}
           field: Priority
@@ -144,7 +143,7 @@ jobs:
       - uses: github/update-project-action@v4
         with:
           github_token: ${{ secrets.TG_PROJECT_TOKEN }}
-          user: syed-dawood
+          organization: TensorGateLabs
           project_number: 1
           content_id: ${{ needs.infer_field_values.outputs.content_id }}
           field: Component
@@ -160,7 +159,7 @@ jobs:
       - uses: github/update-project-action@v4
         with:
           github_token: ${{ secrets.TG_PROJECT_TOKEN }}
-          user: syed-dawood
+          organization: TensorGateLabs
           project_number: 1
           content_id: ${{ needs.infer_field_values.outputs.content_id }}
           field: Role

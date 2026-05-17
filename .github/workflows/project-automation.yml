@@ -5,6 +5,7 @@ on:
     types: [opened, reopened, edited, labeled, unlabeled]
   pull_request_target:
     types: [opened, reopened, synchronize]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,210 +13,159 @@ permissions:
   pull-requests: write
 
 jobs:
-  route-and-sync-project-fields:
-    name: Route and sync project fields
+  add-to-project:
+    name: Add to TensorGate project
     runs-on: ubuntu-latest
     if: ${{ secrets.TG_PROJECT_TOKEN != '' }}
     steps:
-      - name: Add item and synchronize project fields
+      - uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: https://github.com/users/syed-dawood/projects/1
+          github-token: ${{ secrets.TG_PROJECT_TOKEN }}
+
+  infer-field-values:
+    name: Infer field values from labels
+    runs-on: ubuntu-latest
+    if: ${{ secrets.TG_PROJECT_TOKEN != '' }}
+    outputs:
+      content_id: ${{ steps.infer.outputs.content_id }}
+      sprint: ${{ steps.infer.outputs.sprint }}
+      priority: ${{ steps.infer.outputs.priority }}
+      component: ${{ steps.infer.outputs.component }}
+      role: ${{ steps.infer.outputs.role }}
+    steps:
+      - id: infer
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.TG_PROJECT_TOKEN }}
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-
             const issue = context.payload.issue;
             const pr = context.payload.pull_request;
-            const isIssueEvent = !!issue;
-            const isPREvent = !!pr;
-            const contentNodeId = isIssueEvent ? issue.node_id : pr.node_id;
-
-            if (!contentNodeId) {
-              core.warning("No issue/PR node ID found in payload. Nothing to sync.");
-              return;
-            }
-
-            const labels = (isIssueEvent ? issue.labels : pr.labels || [])
+            const contentId = issue?.node_id || pr?.node_id || "";
+            const labels = (issue?.labels || pr?.labels || [])
               .map(l => typeof l === "string" ? l : l.name)
               .filter(Boolean);
-            const labelSet = new Set(labels);
+            const set = new Set(labels);
 
-            const PROJECT_NUMBER = 1;
-
-            const queryProject = `
-              query($owner:String!, $number:Int!) {
-                user(login:$owner) {
-                  projectV2(number:$number) {
-                    id
-                    title
-                    fields(first:50) {
-                      nodes {
-                        ... on ProjectV2Field { id name }
-                        ... on ProjectV2SingleSelectField {
-                          id
-                          name
-                          options { id name }
-                        }
-                      }
-                    }
-                  }
-                }
+            const pick = (pairs) => {
+              for (const [label, value] of pairs) {
+                if (set.has(label)) return value;
               }
-            `;
-
-            const projectResult = await github.graphql(queryProject, {
-              owner,
-              number: PROJECT_NUMBER
-            });
-
-            const project = projectResult?.user?.projectV2;
-            if (!project) {
-              core.setFailed(`Project v2 #${PROJECT_NUMBER} not found for user ${owner}.`);
-              return;
-            }
-
-            const fields = project.fields.nodes || [];
-            const findField = (name) => fields.find(f => f.name === name);
-            const findOptionId = (fieldName, optionName) => {
-              const field = findField(fieldName);
-              if (!field || !field.options) return null;
-              const option = field.options.find(o => o.name === optionName);
-              return option?.id || null;
+              return "";
             };
 
-            const addItemMutation = `
-              mutation($projectId:ID!, $contentId:ID!) {
-                addProjectV2ItemById(input:{projectId:$projectId, contentId:$contentId}) {
-                  item { id }
-                }
-              }
-            `;
-
-            let itemId = null;
-            try {
-              const addRes = await github.graphql(addItemMutation, {
-                projectId: project.id,
-                contentId: contentNodeId
-              });
-              itemId = addRes?.addProjectV2ItemById?.item?.id || null;
-              core.info(`Added item to project with ID: ${itemId}`);
-            } catch (err) {
-              core.info(`Add-to-project likely already exists or is not addable: ${err.message}`);
-            }
-
-            if (!itemId) {
-              const queryItems = `
-                query($projectId:ID!) {
-                  node(id:$projectId) {
-                    ... on ProjectV2 {
-                      items(first:100) {
-                        nodes {
-                          id
-                          content {
-                            __typename
-                            ... on Issue { id }
-                            ... on PullRequest { id }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              `;
-              const itemsRes = await github.graphql(queryItems, { projectId: project.id });
-              const items = itemsRes?.node?.items?.nodes || [];
-              const match = items.find(i => i?.content?.id === contentNodeId);
-              itemId = match?.id || null;
-            }
-
-            if (!itemId) {
-              core.setFailed("Could not determine project item ID for issue/PR.");
-              return;
-            }
-
-            const setSingleSelect = async (fieldName, optionName) => {
-              const field = findField(fieldName);
-              const optionId = findOptionId(fieldName, optionName);
-              if (!field || !optionId) {
-                core.warning(`Skipping ${fieldName}=${optionName}: field/option not found.`);
-                return;
-              }
-
-              const mutation = `
-                mutation($projectId:ID!, $itemId:ID!, $fieldId:ID!, $optionId:String!) {
-                  updateProjectV2ItemFieldValue(input:{
-                    projectId:$projectId,
-                    itemId:$itemId,
-                    fieldId:$fieldId,
-                    value:{ singleSelectOptionId:$optionId }
-                  }) {
-                    projectV2Item { id }
-                  }
-                }
-              `;
-
-              await github.graphql(mutation, {
-                projectId: project.id,
-                itemId,
-                fieldId: field.id,
-                optionId
-              });
-              core.info(`Set ${fieldName} -> ${optionName}`);
-            };
-
-            const sprintMap = [
+            const sprint = pick([
               ["sprint:1", "Sprint 1: Proxy Mechanics"],
               ["sprint:2", "Sprint 2: Inference Engines"],
-              ["sprint:3", "Sprint 3: Validation"]
-            ];
-            const priorityMap = [
+              ["sprint:3", "Sprint 3: Validation"],
+            ]);
+            const priority = pick([
               ["priority:critical", "Critical"],
               ["priority:high", "High"],
-              ["priority:medium", "Medium"]
-            ];
-            const componentMap = [
+              ["priority:medium", "Medium"],
+            ]);
+            const component = pick([
               ["component:proxy", "Proxy (YARP)"],
               ["component:tokenizer", "Tokenizer"],
               ["component:inference", "Inference (ONNX)"],
               ["component:concurrency", "Concurrency"],
               ["component:validation", "Validation"],
               ["component:memory", "Memory"],
-              ["component:ci-cd", "CI/CD"]
-            ];
-            const roleMap = [
+              ["component:ci-cd", "CI/CD"],
+            ]);
+            const role = pick([
               ["role:migrator", "Migrator"],
               ["role:validator", "Validator"],
               ["role:tester", "Tester"],
-              ["role:orchestrator", "Orchestrator"]
-            ];
+              ["role:orchestrator", "Orchestrator"],
+            ]);
 
-            const pickOption = (pairs) => {
-              for (const [label, option] of pairs) {
-                if (labelSet.has(label)) return option;
-              }
-              return null;
-            };
+            core.setOutput("content_id", contentId);
+            core.setOutput("sprint", sprint);
+            core.setOutput("priority", priority);
+            core.setOutput("component", component);
+            core.setOutput("role", role);
 
-            // Keep new items in Todo unless maintainers move them.
-            await setSingleSelect("Status", "Todo");
+  set-status:
+    name: Set project status Todo
+    runs-on: ubuntu-latest
+    needs: [add-to-project, infer-field-values]
+    if: ${{ needs.infer-field-values.outputs.content_id != '' && secrets.TG_PROJECT_TOKEN != '' }}
+    steps:
+      - uses: github/update-project-action@v4
+        with:
+          github_token: ${{ secrets.TG_PROJECT_TOKEN }}
+          organization: syed-dawood
+          project_number: 1
+          content_id: ${{ needs.infer-field-values.outputs.content_id }}
+          field: Status
+          value: Todo
 
-            const sprintOption = pickOption(sprintMap);
-            const priorityOption = pickOption(priorityMap);
-            const componentOption = pickOption(componentMap);
-            const roleOption = pickOption(roleMap);
+  set-sprint:
+    name: Set sprint field
+    runs-on: ubuntu-latest
+    needs: [add-to-project, infer-field-values]
+    if: ${{ needs.infer-field-values.outputs.content_id != '' && needs.infer-field-values.outputs.sprint != '' && secrets.TG_PROJECT_TOKEN != '' }}
+    steps:
+      - uses: github/update-project-action@v4
+        with:
+          github_token: ${{ secrets.TG_PROJECT_TOKEN }}
+          organization: syed-dawood
+          project_number: 1
+          content_id: ${{ needs.infer-field-values.outputs.content_id }}
+          field: Sprint
+          value: ${{ needs.infer-field-values.outputs.sprint }}
 
-            if (sprintOption) await setSingleSelect("Sprint", sprintOption);
-            if (priorityOption) await setSingleSelect("Priority", priorityOption);
-            if (componentOption) await setSingleSelect("Component", componentOption);
-            if (roleOption) await setSingleSelect("Role", roleOption);
+  set-priority:
+    name: Set priority field
+    runs-on: ubuntu-latest
+    needs: [add-to-project, infer-field-values]
+    if: ${{ needs.infer-field-values.outputs.content_id != '' && needs.infer-field-values.outputs.priority != '' && secrets.TG_PROJECT_TOKEN != '' }}
+    steps:
+      - uses: github/update-project-action@v4
+        with:
+          github_token: ${{ secrets.TG_PROJECT_TOKEN }}
+          organization: syed-dawood
+          project_number: 1
+          content_id: ${{ needs.infer-field-values.outputs.content_id }}
+          field: Priority
+          value: ${{ needs.infer-field-values.outputs.priority }}
+
+  set-component:
+    name: Set component field
+    runs-on: ubuntu-latest
+    needs: [add-to-project, infer-field-values]
+    if: ${{ needs.infer-field-values.outputs.content_id != '' && needs.infer-field-values.outputs.component != '' && secrets.TG_PROJECT_TOKEN != '' }}
+    steps:
+      - uses: github/update-project-action@v4
+        with:
+          github_token: ${{ secrets.TG_PROJECT_TOKEN }}
+          organization: syed-dawood
+          project_number: 1
+          content_id: ${{ needs.infer-field-values.outputs.content_id }}
+          field: Component
+          value: ${{ needs.infer-field-values.outputs.component }}
+
+  set-role:
+    name: Set role field
+    runs-on: ubuntu-latest
+    needs: [add-to-project, infer-field-values]
+    if: ${{ needs.infer-field-values.outputs.content_id != '' && needs.infer-field-values.outputs.role != '' && secrets.TG_PROJECT_TOKEN != '' }}
+    steps:
+      - uses: github/update-project-action@v4
+        with:
+          github_token: ${{ secrets.TG_PROJECT_TOKEN }}
+          organization: syed-dawood
+          project_number: 1
+          content_id: ${{ needs.infer-field-values.outputs.content_id }}
+          field: Role
+          value: ${{ needs.infer-field-values.outputs.role }}
 
   missing-project-token:
     name: Project token not configured
     runs-on: ubuntu-latest
     if: ${{ secrets.TG_PROJECT_TOKEN == '' }}
     steps:
-      - name: Explain required secret
-        run: |
+      - run: |
           echo "TG_PROJECT_TOKEN is not configured."
           echo "Create a PAT with 'project' and 'repo' scopes and store it as repository secret TG_PROJECT_TOKEN."

@@ -3,6 +3,13 @@ name: Dependency Review
 on:
   pull_request:
     branches: [main]
+    paths:
+      - '**/*.csproj'
+      - '**/*.props'
+      - '**/*.targets'
+      - 'Directory.Packages.props'
+      - '**/packages.lock.json'
+      - 'NuGet.config'
 
 permissions:
   contents: read
@@ -12,7 +19,6 @@ jobs:
   dependency-review:
     name: Audit Dependencies
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -22,10 +28,3 @@ jobs:
           fail-on-severity: high
           comment-summary-in-pr: always
           deny-licenses: GPL-3.0, AGPL-3.0
-
-      - name: Explain non-blocking mode during bootstrap
-        if: ${{ always() }}
-        run: |
-          echo "Dependency review is configured in non-blocking mode for bootstrap."
-          echo "Once the repository dependency graph is fully supported for project manifests,"
-          echo "set continue-on-error to false to enforce strict gating."

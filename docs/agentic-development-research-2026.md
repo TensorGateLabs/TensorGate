@@ -59,9 +59,8 @@ Implication:
 ### Local gate before push
 
 1. `./scripts/preflight.sh`
-2. `./scripts/preflight.sh` (maintainers: optional gate via **TensorGate-Ops**)
-3. ensure branch is issue-bound (`feature/<issue>-...` or `fix/<issue>-...`)
-4. ensure acceptance criteria/risk checklist are closed in working notes
+2. ensure branch is issue-bound (`feature/<issue>-...` or `fix/<issue>-...`)
+3. ensure acceptance criteria/risk checklist are closed in working notes
 
 ### PR gate before merge
 

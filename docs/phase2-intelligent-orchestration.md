@@ -64,9 +64,7 @@ Workflow: `.github/workflows/pr-readiness-gate.yml`
 
 Scripts:
 
-- `scripts/preflight.sh`: local quality gate mirror
 - `scripts/preflight.sh`: deterministic local build/test/format gate before push
-- Maintainer Cursor/NIW scripts (private **TensorGate-Ops** repo): board transitions, local gate, orchestrated change flow
 
 ## Standard End-to-End Flow
 

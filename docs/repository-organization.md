@@ -22,10 +22,6 @@ Automation (`.github/workflows/project-automation.yml`) uses:
 
 The previous founder user project (`syed-dawood/projects/1`) is superseded; issues are linked on the org board.
 
-## Maintainer tooling (private)
-
-Cursor rules, NIW lifecycle skill, board-transition scripts, and Cursor/MCP docs are **not** in this public repository. They live in the private org repo **TensorGate-Ops** (`TensorGateLabs/TensorGate-Ops`). Clone it alongside TensorGate and symlink `.cursor` per the Ops README.
-
 ## Teams
 
 | Team | Purpose |

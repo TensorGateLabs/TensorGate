@@ -42,8 +42,8 @@ Ship high-quality changes that are "merge-ready before leaving local" by combini
 
 ### Stage 1: Research and plan
 
-- Use `explore` for codebase discovery.
-- Use Context7 MCP for library/framework/API specifics.
+- Map affected modules and dependencies before editing.
+- Verify library/framework behavior against current upstream docs when uncertain.
 - Record "what will change / what will not change" before coding.
 
 ### Stage 2: Implement
@@ -57,8 +57,6 @@ Ship high-quality changes that are "merge-ready before leaving local" by combini
 ```bash
 ./scripts/preflight.sh
 ```
-
-Maintainers using Cursor may also run the local gate in the private **TensorGate-Ops** repository.
 
 ### Stage 4: PR intelligence and review
 
@@ -77,11 +75,8 @@ Maintainers using Cursor may also run the local gate in the private **TensorGate
 ## Tooling Roles
 
 - `gh` / GitHub API: source of truth for issue/PR/check state.
-- Context7 (optional): current API/docs verification during development.
 
-Cursor-specific MCP routing and Composer prompts live in the private **TensorGate-Ops** repository.
-
-## Prompting Pattern for Agentic Tasks
+## Communication pattern for issues and PRs
 
 Use this prompt shape for consistent quality:
 
@@ -98,7 +93,6 @@ Use this prompt shape for consistent quality:
 - [ ] Acceptance criteria are explicit and testable.
 - [ ] Risks identified with mitigation.
 - [ ] Local preflight passed.
-- [ ] Maintainer local gate passed (TensorGate-Ops, optional).
 - [ ] Diff is minimal and reviewable.
 - [ ] PR template completed with evidence.
 

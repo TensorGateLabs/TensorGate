@@ -10,9 +10,11 @@ public static class MockUpstreamHost
         app.Run();
     }
 
-    internal static void MapEndpoints(WebApplication app)
+    public static void MapEndpoints(WebApplication app)
     {
         app.MapGet("/health", () => Results.Ok(new { status = "healthy", role = "mock-upstream" }));
+
+        SseMockEndpoints.Map(app);
 
         app.Map("{**path}", (HttpRequest request, string path) => Results.Ok(new
         {

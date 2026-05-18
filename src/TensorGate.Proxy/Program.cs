@@ -1,4 +1,5 @@
 using TensorGate.Core;
+using TensorGate.Proxy.Streaming;
 
 namespace TensorGate.Proxy;
 
@@ -15,11 +16,13 @@ public static class ProxyHost
 
     internal static void Configure(WebApplicationBuilder builder)
     {
+        builder.ConfigureTensorGateKestrel();
 
         builder.Services.AddHealthChecks();
         builder.Services
             .AddReverseProxy()
-            .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+            .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+            .AddSsePassthroughTransforms();
     }
 
     internal static void MapEndpoints(WebApplication app)

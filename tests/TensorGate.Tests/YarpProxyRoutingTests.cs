@@ -1,6 +1,5 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Configuration;
 
 namespace TensorGate.Tests;

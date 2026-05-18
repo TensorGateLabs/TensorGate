@@ -1,27 +1,18 @@
 ---
-description: Enforce PM->Dev->QA->DevOps lifecycle for issue work
+description: Mandatory NIW project lifecycle before any board issue work
 alwaysApply: true
 ---
 
-# Agentic Issue Lifecycle
+# Agentic Issue Lifecycle (mandatory)
 
-For every implementation request, execute this order:
+Before implementing **any** GitHub issue from the TensorGate board:
 
-1. **PM mode**
-   - restate issue scope, non-goals, acceptance criteria
-   - confirm labels/sprint alignment if missing
-2. **Dev mode**
-   - implement minimal scoped change set
-   - avoid unrelated edits
-3. **QA mode**
-   - run deterministic verification commands
-   - test happy path + at least one failure/edge path
-4. **DevOps mode**
-   - validate workflow impact and required checks
-   - ensure release/traceability docs stay current
+1. Read and follow the project skill: `.cursor/skills/niw-project-lifecycle/SKILL.md`
+2. Use `./scripts/project-board-transition.sh <issue#> "<Status>"` for every phase change
+3. Assign `@syed-dawood` when work starts; keep audit trail on issue + PR (no "role playing" labels in text)
 
-Before final response:
+Order: **Todo → In Progress → Peer Review → Ready For QA → QA Complete → Done**
 
-- include verification evidence (commands + outcomes)
-- include residual risks and follow-up actions
-- prefer local-first confidence before relying on remote CI
+On review or QA failure, move the board **backward** and document on the PR.
+
+Do not skip research comments or testing evidence on the PR body.

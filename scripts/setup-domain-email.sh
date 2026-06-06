@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Configure free custom-domain email on Cloudflare for tensorgate.com.
+# Configure free custom-domain email on Cloudflare for tensorgate.dev.
 #
 # What this does (all via the Cloudflare API, no clicking required):
 #   1. Resolves the Cloudflare zone + account for your domain.
@@ -8,7 +8,7 @@
 #   3. Merges Google into the SPF record so Gmail "Send mail as" passes SPF.
 #   4. Publishes a relaxed DMARC record (p=none) so send-as mail is not blocked.
 #   5. Registers your Gmail as a verified destination (triggers a confirm email).
-#   6. Creates forwarding rules (e.g. founder@tensorgate.com -> your Gmail)
+#   6. Creates forwarding rules (e.g. founder@tensorgate.dev -> your Gmail)
 #      and, optionally, a catch-all rule for every other address.
 #
 # What this CANNOT do for you (manual, one-time):
@@ -19,7 +19,7 @@
 #
 # Usage:
 #   export CF_API_TOKEN="..."             # required (scoped token, see docs)
-#   export ZONE_NAME="tensorgate.com"     # required
+#   export ZONE_NAME="tensorgate.dev"     # required
 #   export FORWARD_TO="you@gmail.com"     # required (destination inbox)
 #   export ADDRESSES="founder,hello,info" # optional, comma-separated local parts
 #   export CATCH_ALL="true"               # optional, forward everything else too
@@ -31,7 +31,7 @@ set -euo pipefail
 API="https://api.cloudflare.com/client/v4"
 
 : "${CF_API_TOKEN:?Set CF_API_TOKEN (Cloudflare API token). See docs/domain-and-email-setup.md}"
-: "${ZONE_NAME:?Set ZONE_NAME, e.g. tensorgate.com}"
+: "${ZONE_NAME:?Set ZONE_NAME, e.g. tensorgate.dev}"
 : "${FORWARD_TO:?Set FORWARD_TO, e.g. you@gmail.com}"
 ADDRESSES="${ADDRESSES:-founder}"
 CATCH_ALL="${CATCH_ALL:-false}"

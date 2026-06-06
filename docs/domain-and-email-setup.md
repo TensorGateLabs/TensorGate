@@ -1,16 +1,18 @@
-# Domain & Org Email Setup (tensorgate.com)
+# Domain & Org Email Setup (tensorgate.dev)
 
 How TensorGate gets a real domain and free custom-domain email
-(`founder@tensorgate.com` → your Gmail), the cheap way.
+(`founder@tensorgate.dev` → your Gmail), the cheap way.
 
-Decisions made: register **tensorgate.com** (~$10/yr) at the **Cloudflare
+Decisions made: register **tensorgate.dev** (~$12.20/yr) at the **Cloudflare
 Registrar** (at-cost, free WHOIS privacy), and use **Cloudflare Email Routing +
 Gmail "Send mail as"** for free send/receive.
 
-> Why `.com` over `.ai`: `.ai` is a premium TLD at ~$80–95/yr with a registry-
-> mandated **2-year minimum** (~$160 up front). `.com` is ~$10/yr, passes the
-> radio test, and carries universal credibility. You can always add `.ai` later
-> as a redirect.
+> Why `.dev`: `tensorgate.com` was already taken. `.dev` is the clean,
+> unhyphenated brand name, is Google-operated with enforced HTTPS (HSTS
+> preload), and signals "developer / technical tool" — a perfect fit for AI
+> safety middleware. `.ai` was ruled out as a premium TLD (~$80–95/yr with a
+> registry-mandated 2-year minimum, ~$160 up front). You can add `.ai` later as
+> a redirect.
 
 ---
 
@@ -18,21 +20,21 @@ Gmail "Send mail as"** for free send/receive.
 
 | Item | Cost |
 | --- | --- |
-| tensorgate.com (Cloudflare Registrar) | ~$10.44 / yr (at cost) |
+| tensorgate.dev (Cloudflare Registrar) | ~$12.20 / yr (at cost) |
 | WHOIS privacy | Free |
 | Cloudflare Email Routing (receive + forward) | Free |
 | Gmail "Send mail as" (send) | Free (uses your existing Gmail) |
-| **Total** | **~$10 / yr** |
+| **Total** | **~$12 / yr** |
 
 ### Honest limitations of the free email setup
 
-- It is **forwarding**, not a real mailbox. Mail to `founder@tensorgate.com`
+- It is **forwarding**, not a real mailbox. Mail to `founder@tensorgate.dev`
   lands in your normal Gmail inbox.
 - Your personal Gmail address is still visible in the **raw headers** of mail you
   send. Fine for a founder/small team; not ideal for a 20-person company.
 - It uses Gmail's **consumer sending limits** (~500 recipients/day). For bulk or
   transactional email later, add Amazon SES / Mailgun / Resend on a subdomain
-  (e.g. `mail.tensorgate.com`) — that does not affect this inbox setup.
+  (e.g. `mail.tensorgate.dev`) — that does not affect this inbox setup.
 
 ---
 
@@ -44,7 +46,7 @@ registration over a public API.
 
 1. Create/sign in to a Cloudflare account: <https://dash.cloudflare.com/sign-up>
 2. Go to **Domain Registration → Register Domains**.
-3. Search `tensorgate`, add **tensorgate.com**, and check out (~$10.44).
+3. Search `tensorgate`, add **tensorgate.dev**, and check out (~$10.44).
    WHOIS privacy is on by default and free.
 
 Registering here automatically creates the DNS **zone** and points the domain at
@@ -67,7 +69,7 @@ Grant exactly these permissions (least privilege):
 | Zone | Email Routing Rules | Edit |
 | Account | Email Routing Addresses | Edit |
 
-- **Zone Resources:** Include → Specific zone → `tensorgate.com`
+- **Zone Resources:** Include → Specific zone → `tensorgate.dev`
 - **Account Resources:** Include → your account
 
 Copy the token once. **This is the only secret I need to do everything else.**
@@ -76,8 +78,8 @@ Copy the token once. **This is the only secret I need to do everything else.**
 
 ```bash
 export CF_API_TOKEN="<the token from step 2>"
-export ZONE_NAME="tensorgate.com"
-export FORWARD_TO="dawoodshah100@gmail.com"   # your destination inbox
+export ZONE_NAME="tensorgate.dev"
+export FORWARD_TO="sd.syeddawood@gmail.com"   # your destination inbox
 export ADDRESSES="founder,hello,info"          # addresses to create
 export CATCH_ALL="true"                         # forward everything else too
 ./scripts/setup-domain-email.sh
@@ -98,31 +100,31 @@ link.** Forwarding does not work until this is confirmed.
 
 ## Step 5 — Configure Gmail "Send mail as" (manual, you do this)
 
-So replies come *from* `founder@tensorgate.com`:
+So replies come *from* `founder@tensorgate.dev`:
 
 1. Enable **2-Step Verification** on your Google account if not already.
 2. Create an **App Password**: <https://myaccount.google.com/apppasswords>
    (name it "TensorGate Mail"). Copy the 16-character code.
 3. Gmail → **Settings → Accounts and Import → "Send mail as" → Add another
    email address**.
-   - Name: `TensorGate` · Email: `founder@tensorgate.com` · uncheck "alias".
+   - Name: `TensorGate` · Email: `founder@tensorgate.dev` · uncheck "alias".
    - SMTP server: `smtp.gmail.com` · Port: `587` · TLS.
    - Username: your full Gmail address · Password: the **App Password**.
-4. Gmail sends a confirmation code to `founder@tensorgate.com` — it arrives in
+4. Gmail sends a confirmation code to `founder@tensorgate.dev` — it arrives in
    your Gmail via routing. Enter it.
 5. Optional: set it as default, and Settings → "reply from the same address the
    message was sent to".
 
-Done. You now receive at and send from `founder@tensorgate.com` for ~$10/yr.
+Done. You now receive at and send from `founder@tensorgate.dev` for ~$10/yr.
 
 ---
 
 ## What I need from you (only the things I can't do)
 
-1. ✅ **Register tensorgate.com** at Cloudflare Registrar (Step 1).
+1. ✅ **Register tensorgate.dev** at Cloudflare Registrar (Step 1).
 2. ✅ **Cloudflare API token** with the 4 permissions above (Step 2) — paste it
    to me and I run Step 3.
-3. ✅ Confirm the **destination inbox** (default: `dawoodshah100@gmail.com`) and
+3. ✅ Confirm the **destination inbox** (default: `sd.syeddawood@gmail.com`) and
    which **addresses** you want (default: `founder`, `hello`, `info`).
 4. ✅ **Click the verification email** (Step 4) and do the **Gmail send-as**
    setup (Step 5) — these are in Google/Cloudflare UIs I can't drive.

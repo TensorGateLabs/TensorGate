@@ -427,3 +427,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Cloudflare Wrangler local state (contains account cache)
+.wrangler/

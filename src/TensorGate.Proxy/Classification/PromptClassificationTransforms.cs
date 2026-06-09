@@ -72,15 +72,11 @@ public static class PromptClassificationTransforms
             return;
         }
 
-        // Allowed: the body stream has been consumed, so replace the proxy request
-        // content with the buffered bytes to forward the original payload intact.
-        var forwardedContent = new ByteArrayContent(body);
-        if (http.Request.ContentType is { Length: > 0 } contentType)
-        {
-            forwardedContent.Headers.TryAddWithoutValidation("Content-Type", contentType);
-        }
-
-        transformContext.ProxyRequest.Content = forwardedContent;
+        // Allowed: the body stream was consumed during inspection, so rewind it with the
+        // buffered bytes and let YARP forward the original payload. Replacing the outgoing
+        // ProxyRequest.Content is rejected by YARP ("Replacing the YARP outgoing request
+        // HttpContent is not supported") — the request body stream is the supported seam.
+        http.Request.Body = new MemoryStream(body);
     }
 
     private static bool CarriesJsonBody(HttpContext http)

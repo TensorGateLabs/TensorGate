@@ -16,6 +16,15 @@ public static class MockUpstreamHost
 
         SseMockEndpoints.Map(app);
 
+        // Echoes the received body verbatim so proxy tests can assert that an
+        // intercepted-then-forwarded request reaches the upstream unmodified.
+        app.MapPost("/v1/test/echo", async (HttpRequest request) =>
+        {
+            using var reader = new StreamReader(request.Body);
+            var body = await reader.ReadToEndAsync().ConfigureAwait(false);
+            return Results.Text(body, "application/json");
+        });
+
         app.Map("{**path}", (HttpRequest request, string path) => Results.Ok(new
         {
             role = "mock-upstream",

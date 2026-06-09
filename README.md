@@ -4,6 +4,7 @@
 YARP reverse proxy with local ONNX inference for real-time LLM payload
 inspection, prompt injection detection, and semantic sanitization.
 
+[![CI](https://github.com/TensorGateLabs/TensorGate/actions/workflows/ci.yml/badge.svg)](https://github.com/TensorGateLabs/TensorGate/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
 [![NIST AI RMF](https://img.shields.io/badge/NIST-AI%20600--1%20RMF-green.svg)](https://www.nist.gov/artificial-intelligence)

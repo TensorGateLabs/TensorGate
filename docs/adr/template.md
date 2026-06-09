@@ -1,6 +1,6 @@
 # ADR-NNNN: <short title of the decision>
 
-- **Status:** Proposed | Accepted | Superseded by [ADR-XXXX](xxxx-....md) | Deprecated
+- **Status:** Proposed | Accepted | Superseded by ADR-XXXX | Deprecated
 - **Date:** YYYY-MM-DD
 - **Deciders:** <who was involved>
 

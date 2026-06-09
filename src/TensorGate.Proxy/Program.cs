@@ -1,4 +1,6 @@
 using TensorGate.Core;
+using TensorGate.Core.Classification;
+using TensorGate.Proxy.Classification;
 using TensorGate.Proxy.Streaming;
 
 namespace TensorGate.Proxy;
@@ -19,10 +21,12 @@ public static class ProxyHost
         builder.ConfigureTensorGateKestrel();
 
         builder.Services.AddHealthChecks();
+        builder.Services.AddSingleton<IPromptClassifier, AllowAllPromptClassifier>();
         builder.Services
             .AddReverseProxy()
             .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-            .AddSsePassthroughTransforms();
+            .AddSsePassthroughTransforms()
+            .AddPromptClassificationTransforms();
     }
 
     internal static void MapEndpoints(WebApplication app)

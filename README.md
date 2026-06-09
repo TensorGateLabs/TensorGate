@@ -44,6 +44,10 @@ sub-50ms latency budget on pure CPU hardware.
                     └──────────────────────────────────────────┘
 ```
 
+> **Deeper reference:** [System architecture](docs/architecture.md) (topology, data
+> flow, component map) and the [Architecture Decision Records](docs/adr/README.md)
+> documenting why YARP, `Utf8JsonReader`, INT8 ONNX, and `RefCountDisposable` were chosen.
+
 ### Pipeline Flow
 
 1. **Network Interception** — YARP captures outbound LLM API traffic via `AddRequestTransform`

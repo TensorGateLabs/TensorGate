@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/add-to-project@v1.0.2
+      - uses: actions/add-to-project@v2.0.0
         with:
           project-url: https://github.com/orgs/TensorGateLabs/projects/1
           github-token: ${{ secrets.TG_PROJECT_TOKEN }}
@@ -36,7 +36,7 @@ jobs:
       role: ${{ steps.infer.outputs.role }}
     steps:
       - id: infer
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.TG_PROJECT_TOKEN }}
           script: |
@@ -173,7 +173,7 @@ jobs:
     needs: [add_to_project, infer_field_values, set_status, set_sprint, set_priority, set_component, set_role]
     if: ${{ github.event_name == 'issues' && (needs.add_to_project.result == 'failure' || needs.set_status.result == 'failure' || needs.set_sprint.result == 'failure' || needs.set_priority.result == 'failure' || needs.set_component.result == 'failure' || needs.set_role.result == 'failure') }}
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.TG_PROJECT_TOKEN }}
           script: |

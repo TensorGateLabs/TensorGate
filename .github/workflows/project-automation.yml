@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/add-to-project@v2.0.0
+      - uses: actions/add-to-project@v2.0.1
         with:
           project-url: https://github.com/orgs/TensorGateLabs/projects/1
           github-token: ${{ secrets.TG_PROJECT_TOKEN }}
